@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Column } from './Column';
 import { DndContext } from '@dnd-kit/core';
 import axios from 'axios';
+import SocialLogin from './shared/SocialLogin/SocialLogin';
+import useAuth from './hooks/useAuth';
 
 const COLUMNS = [
   { id: 'TODO', title: 'To Do' },
@@ -10,6 +12,7 @@ const COLUMNS = [
 ];
 
 export default function App() {
+  const { user } = useAuth()
   const [tasks, setTasks] = useState([]);
   console.log(tasks)
   const [newTask, setNewTask] = useState({ title: '', description: '', status: 'TODO' });
@@ -77,8 +80,12 @@ export default function App() {
 
   return (
     <div className="p-4 flex flex-col bg-black min-h-screen text-white">
-      <h1 className="text-3xl font-semibold text-center">Efficiento</h1>
-      <p className='text-center text-gray-500'>Your Efficient Task Manager</p>
+      <div>
+        <h1 className="text-3xl font-semibold text-center">Efficiento</h1>
+        <p className='text-center text-gray-500'>Your Efficient Task Manager</p>
+        <p className='text-center'>{user?.email || ''}</p>
+        <div className='flex items-center justify-center'>{user? <button onClick={user.logOut} className="btn bg-red-500 py-1 px-5 rounded-2xl text-center text-neutral-100">Log Out</button> : <SocialLogin />}  </div>
+      </div>
       {/* Task Creation Form */}
       <div className="mb-8 w-11/12 md:w-10/12 lg:w-8/12 mx-auto">
         <h2 className="text-xl font-semibold text-black">Add New Task</h2>

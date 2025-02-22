@@ -6,10 +6,16 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = 5000;
+const port = process.env.PORT || 5000
+
+const corsOptions = {
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://task-bro-2e6d9.web.app'],
+    credentials: true,
+    optionSuccessStatus: 200,
+  }
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 //efficiopro
@@ -119,7 +125,7 @@ app.get('/', async (req, res) => {
 // });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
 });
 
