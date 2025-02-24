@@ -79,12 +79,17 @@ export default function App() {
   }
 
   return (
-    <div className="p-4 flex flex-col bg-black min-h-screen text-white">
-      <div>
-        <h1 className="text-3xl font-semibold text-center">Efficiento</h1>
-        <p className='text-center text-gray-500'>Your Efficient Task Manager</p>
-        <p className='text-center'>{user?.email || ''}</p>
-        <div className='flex items-center justify-center'>{user? <button onClick={user.logOut} className="btn bg-red-500 py-1 px-5 rounded-2xl text-center text-neutral-100">Log Out</button> : <SocialLogin />}  </div>
+    <div className="flex flex-col bg-black min-h-screen text-white">
+      <div className='flex items-center px-2 justify-between bg-gray-700'>
+        <div className='flex justify-center'>
+          <h1>TODOs</h1>
+        </div>
+        <div className='py-2'>
+          <h1 className="text-3xl font-semibold text-center">Efficiento</h1>
+          <p className='text-center text-gray-500'>Your Efficient Task Manager</p>
+        </div>
+        <div>{user ? <div className='flex gap-2' ><img className='w-10 h-10 rounded-full ring-2' src={user?.photoURL} alt="" /><button className="btn bg-red-500 py-1 px-5 rounded-2xl text-center text-white">Log Out</button></div>  : <SocialLogin />}</div>
+
       </div>
       {/* Task Creation Form */}
       <div className="mb-8 w-11/12 md:w-10/12 lg:w-8/12 mx-auto">
