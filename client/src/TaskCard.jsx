@@ -3,7 +3,6 @@ import { useDraggable } from '@dnd-kit/core';
 
 // eslint-disable-next-line react/prop-types
 export function TaskCard({ task }) {
-  console.log(task)
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: task._id,
   });

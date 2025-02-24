@@ -10,7 +10,7 @@ export function Column({ column, tasks }) {
 
 
   return (
-    <div className="flex min-w-80 mx-auto flex-col rounded-lg bg-neutral-800 p-4">
+    <div className="flex w-full mx-auto flex-col rounded-lg bg-neutral-800 p-4">
       <h2 className="mb-4 font-semibold text-neutral-100">{column.title}</h2>
       <div ref={setNodeRef} className="flex flex-1 flex-col gap-4">
         {tasks.map((task) => (

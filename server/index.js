@@ -1,18 +1,35 @@
 // Express.js setup
 
-const express = require('express')
+const http = require('http'); // Import the HTTP module
+const express = require('express');
+const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const { Server } = require('socket.io');
 require('dotenv').config();
+const server = http.createServer(app);
 
-const app = express();
-const port = process.env.PORT || 5000
+const io = new Server(server, {
+    cors: {
+        origin: ['http://localhost:5173', 'https://task-bro-2e6d9.web.app'],
+        methods: ['GET', 'POST', 'PATCH'],
+    },
+    transports: ['websocket', 'polling'], // Allow fallback
+    allowEIO3: true, // Support older clients
+});
+
+
+ // Create an HTTP server
+
+
+
+const port = process.env.PORT || 5050
 
 const corsOptions = {
     origin: ['http://localhost:5173', 'http://localhost:5174', 'https://task-bro-2e6d9.web.app'],
     credentials: true,
     optionSuccessStatus: 200,
-  }
+}
 
 // Middleware
 app.use(cors(corsOptions));
@@ -31,6 +48,19 @@ const client = new MongoClient(uri, {
     }
 });
 
+// Socket.IO connection
+io.on('connection', (socket) => {
+    // console.log('A user connected:', socket.id);
+
+    socket.on('disconnect', () => {
+        //   console.log('User disconnected:', socket.id);
+    });
+});
+
+app.get('/', async (req, res) => {
+    res.send('this is really running')
+});
+
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
@@ -43,14 +73,14 @@ async function run() {
         // POST /tasks - Add a new task
         app.post('/tasks', async (req, res) => {
             const { title, description, status } = req.body;
-            console.log(title, description, status)
             const newTask = { title, description, status, timestamp: new Date() };
             try {
                 const result = await tasksCollection.insertOne(newTask);
+
             } catch (error) {
                 res.status(400).json({ message: 'Error creating task', error });
             }
-            finally{
+            finally {
                 res.send(newTask);
             }
         });
@@ -67,29 +97,20 @@ async function run() {
 
         // PUT /tasks/:id - Update task details
         app.patch('/tasks/:id', async (req, res) => {
-            const id = req.params.id;
-            console.log(id)
-            const updates = req.body;
-            console.log(updates)
-        
-            if (!ObjectId.isValid(id)) {
-                return res.status(400).json({ message: 'Invalid task ID' });
-            }
-        
-            try {
-                const result = await tasksCollection.findOneAndUpdate(
-                    { _id: new ObjectId(id) },
-                    { $set: updates },
-                    { returnDocument: 'after' }
-                );
-        
-                if (!result.value) {
-                    return res.status(404).json({ message: 'Task not found' });
-                }
-        
-                res.status(200).json(result.value);
-            } catch (error) {
-                res.status(500).json({ message: 'Error updating task', error });
+            const { id } = req.params;
+            const { status } = req.body;
+
+            const result = await tasksCollection.findOneAndUpdate(
+                { _id: new ObjectId(id) },
+                { $set: { status } },
+                { returnDocument: 'after' }
+            );
+
+            if (result) {
+                io.emit('taskUpdated', result); // Emit real-time update to all clients
+                res.json(result);
+            } else {
+                res.status(404).json({ message: 'Task not found' });
             }
         });
 
@@ -104,9 +125,7 @@ async function run() {
 run().catch(console.dir);
 // API Endpoints
 
-app.get('/', async (req, res) => {
-    res.send('this is really running')
-});
+
 
 
 
@@ -125,7 +144,7 @@ app.get('/', async (req, res) => {
 // });
 
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
 
